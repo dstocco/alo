@@ -42,6 +42,7 @@ if (ROOT_FOUND AND AliRoot_FOUND)
     add_subdirectory(r23)
     add_subdirectory(binmap)
     add_subdirectory(vsaliroot)
+    add_subdirectory(alireaders)
 endif ()
 
 if (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION} GREATER 3.9.6)
