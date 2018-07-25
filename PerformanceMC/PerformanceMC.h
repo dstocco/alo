@@ -47,13 +47,15 @@ public:
   bool saveResults(const char *filename) const;
 
 private:
+  bool checkParamFromHits(double pt, const std::vector<Hit> &trackHits);
   bool isReconstructible(const std::vector<Hit> &trackHits) const;
   void initHistos();
 
-  std::vector<TH2F> mClusterResolution; // Cluster resolution
-  std::vector<TH1F> mClusterCounters;   // Cluster counters
-  std::vector<TH1F> mTrackResolution;   // Track resolution
-  std::vector<TH2F> mTrackCounters;     // Track counters
+  std::vector<TH2F> mClusterResolution;  // Cluster resolution
+  std::vector<TH1F> mClusterCounters;    // Cluster counters
+  std::vector<TH1F> mTrackResolution;    // Track resolution
+  std::vector<TH2F> mTrackCounters;      // Track counters
+  std::vector<TH2F> mTrackParamFromHits; // Track parameters from hits
 };
 
 } // namespace mid

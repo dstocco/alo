@@ -27,7 +27,7 @@ namespace mid {
 //______________________________________________________________________________
 PerformanceMC::PerformanceMC()
     : mClusterResolution(), mClusterCounters(), mTrackResolution(),
-      mTrackCounters() {
+      mTrackCounters(), mTrackParamFromHits() {
   /// Default constructor
   initHistos();
 }
@@ -37,11 +37,8 @@ void PerformanceMC::initHistos() {
 
   std::string varName[] = {"x", "y", "slope_x", "slope_y"};
 
-  double xMin = -10, xMax = 10;
+  double minDeltaX = -10, maxDeltaX = 10;
   int nXbins = 100;
-
-  double slopeMin = -0.2, slopeMax = 0.2;
-  int nSlopeBins = 80;
 
   double minDeId = -0.5, maxDeId = 72 - 0.5;
   int nDeIdBins = 72;
@@ -51,8 +48,8 @@ void PerformanceMC::initHistos() {
     name << "cluster_residual_" << varName[ihisto];
     title << "Cluster residual in " << varName[ihisto];
     mClusterResolution.emplace_back(name.str().data(), title.str().data(),
-                                    nDeIdBins, minDeId, maxDeId, nXbins, xMin,
-                                    xMax);
+                                    nDeIdBins, minDeId, maxDeId, nXbins,
+                                    minDeltaX, maxDeltaX);
     axisTitle << varName[ihisto] << "_reco - " << varName[ihisto]
               << "_gen (cm)";
     mClusterResolution.back().GetXaxis()->SetTitle("deId");
@@ -66,15 +63,16 @@ void PerformanceMC::initHistos() {
                                 nDeIdBins, minDeId, maxDeId);
   for (auto &histo : mClusterCounters) {
     histo.GetXaxis()->SetTitle("deId");
+    histo.SetDirectory(0);
   }
 
   for (int ihisto = 0; ihisto < 4; ++ihisto) {
     std::stringstream name, title, axisTitle;
     name << "track_residual_" << varName[ihisto];
     title << "Track residual in " << varName[ihisto];
-    int nBins = (ihisto < 2) ? nXbins : nSlopeBins;
-    double min = (ihisto < 2) ? xMin : slopeMin;
-    double max = (ihisto < 2) ? xMax : slopeMax;
+    int nBins = (ihisto < 2) ? nXbins : 80;
+    double min = (ihisto < 2) ? minDeltaX : -0.2;
+    double max = (ihisto < 2) ? maxDeltaX : 0.2;
     mTrackResolution.emplace_back(name.str().data(), title.str().data(), nBins,
                                   min, max);
     axisTitle << varName[ihisto] << "_reco - " << varName[ihisto] << "_gen ";
@@ -110,6 +108,24 @@ void PerformanceMC::initHistos() {
   for (auto &histo : mTrackCounters) {
     histo.GetXaxis()->SetTitle("p_{T} (GeV/c)");
     histo.GetYaxis()->SetTitle("#eta");
+    histo.SetDirectory(0);
+  }
+
+  for (int ihisto = 0; ihisto < 4; ++ihisto) {
+    std::stringstream name, title, axisTitle;
+    name << "track_fromHits_" << varName[ihisto];
+    title << "Track from hits " << varName[ihisto];
+    int nBins = (ihisto < 2) ? 500 : 200;
+    double min = (ihisto < 2) ? -250 : -0.4;
+    double max = (ihisto < 2) ? 250 : 0.4;
+    mTrackParamFromHits.emplace_back(name.str().data(), title.str().data(),
+                                     ptBinning.size() - 1, ptBinning.data(),
+                                     nBins, min, max);
+    axisTitle << varName[ihisto];
+    axisTitle << ((ihisto < 2) ? " (cm)" : " (rad)");
+    mTrackParamFromHits.back().GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    mTrackParamFromHits.back().GetYaxis()->SetTitle(axisTitle.str().data());
+    mTrackParamFromHits.back().SetDirectory(0);
   }
 } // namespace mid
 
@@ -167,6 +183,25 @@ bool PerformanceMC::isReconstructible(const std::vector<Hit> &trackHits) const {
 }
 
 //______________________________________________________________________________
+bool PerformanceMC::checkParamFromHits(double pt,
+                                       const std::vector<Hit> &trackHits) {
+  // Returns the slope from the first and last hit
+  Point3D<float> first(trackHits[0].entrancePoint());
+  Point3D<float> last(trackHits.back().exitPoint());
+  double dZ = last.z() - first.z();
+  double firstPos[2] = {first.x(), first.y()};
+  double lastPos[2] = {last.x(), last.y()};
+  for (int ipos = 0; ipos < 2; ++ipos) {
+    double slope = (lastPos[ipos] - firstPos[ipos]) / dZ;
+    mTrackParamFromHits[ipos + 2].Fill(pt, slope);
+    double impactParam = firstPos[ipos] - first.z() * slope;
+    mTrackParamFromHits[ipos].Fill(pt, impactParam);
+  }
+
+  return true;
+}
+
+//______________________________________________________________________________
 bool PerformanceMC::checkTrack(const o2::mid::Track &generated,
                                const o2::mid::Track &atFirstChamber,
                                const std::vector<Hit> &hits,
@@ -204,6 +239,8 @@ bool PerformanceMC::checkTrack(const o2::mid::Track &generated,
     }
   }
 
+  checkParamFromHits(pt, hits);
+
   mTrackCounters[0].Fill(pt, eta);
   if (nMatches > 0) {
     mTrackCounters[1].Fill(pt, eta);
@@ -240,6 +277,10 @@ bool PerformanceMC::saveResults(const char *filename) const {
   }
 
   for (auto &histo : mTrackCounters) {
+    histo.Write();
+  }
+
+  for (auto &histo : mTrackParamFromHits) {
     histo.Write();
   }
 
