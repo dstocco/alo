@@ -5,6 +5,7 @@
 #include "MIDBase/Constants.h"
 #include "MIDBase/GeometryTransformer.h"
 #include "MIDBase/LegacyUtility.h"
+#include "MIDClustering/PreClusterizer.h"
 #include "MIDClustering/Clusterizer.h"
 #include "MIDSimulation/Digitizer.h"
 #include "MIDSimulation/Hit.h"
@@ -13,12 +14,18 @@
 #include "TrackRefReader.h"
 #include <iostream>
 #include <sstream>
+#include <bitset>
 
-int main(int argc, char *argv[]) {
+#include <fairlogger/Logger.h>
+
+int main(int argc, char* argv[])
+{
   if (argc < 2) {
     std::cout << "Requires the full galice.root name as argument" << std::endl;
     return 1;
   }
+
+  fair::Logger::SetConsoleSeverity(fair::Severity::debug);
 
   unsigned long int nevents = 999999999;
   if (argc >= 3) {
@@ -26,7 +33,7 @@ int main(int argc, char *argv[]) {
   }
 
   AliCDBManager::Instance()->SetDefaultStorage(
-      "local://$ALIROOT_OCDB_ROOT/OCDB");
+    "local://$ALIROOT_OCDB_ROOT/OCDB");
   AliCDBManager::Instance()->SetRun(0);
 
   o2::mid::PerformanceMC performanceMC;
@@ -35,6 +42,7 @@ int main(int argc, char *argv[]) {
   o2::mid::ChamberResponse resp(params,hv);
   o2::mid::Digitizer digitizer(resp);
   o2::mid::GeometryTransformer geoTrans;
+  o2::mid::PreClusterizer preClusterizer;
   o2::mid::Clusterizer clusterizer;
   o2::mid::Tracker tracker;
   std::vector<o2::mid::ColumnData> digitStore;
@@ -51,53 +59,61 @@ int main(int argc, char *argv[]) {
                 << std::endl;
     }
     auto tracks = trRead.readEvent(ievt);
-    for (auto &track : tracks) {
-      bool isOk = true;
-      std::stringstream debugStr;
-      debugStr << "Event " << ievt << "\n";
+    std::stringstream debugStr;
+    debugStr << "Event " << ievt << "\n";
+    bool isOk = true;
+    for (auto& track : tracks) {
+      // bool isOk = true;
       debugStr << "  New track:\n";
-      for (auto &hit : track.hits) {
+      for (auto& hit : track.hits) {
         auto localEntrance = geoTrans.globalToLocal(
-            hit.GetDetectorID(), hit.entrancePoint().x(),
-            hit.entrancePoint().y(), hit.entrancePoint().z());
+          hit.GetDetectorID(), hit.entrancePoint().x(),
+          hit.entrancePoint().y(), hit.entrancePoint().z());
         auto localExit =
-            geoTrans.globalToLocal(hit.GetDetectorID(), hit.exitPoint().x(),
-                                   hit.exitPoint().y(), hit.exitPoint().z());
+          geoTrans.globalToLocal(hit.GetDetectorID(), hit.exitPoint().x(),
+                                 hit.exitPoint().y(), hit.exitPoint().z());
         localHits.emplace_back(hit.GetTrackID(), hit.GetDetectorID(),
                                localEntrance, localExit);
         debugStr << hit << " => " << localHits.back() << "\n";
         digitizer.hitToDigits(localHits.back(),
                               localHits.back().GetDetectorID(), digitStore);
       } // loop on hits
-      clusterizer.process(digitStore);
-      std::vector<o2::mid::Cluster2D> recoClusters(
-          clusterizer.getClusters().begin(),
-          clusterizer.getClusters().begin() + clusterizer.getNClusters());
-      isOk &= performanceMC.checkClusters(localHits, recoClusters);
-      if (!isOk) {
-        for (auto &digit : digitStore) {
-          std::cerr << "deId: " << (int)digit.deId
-                    << "  col: " << (int)digit.columnId;
-          for (auto &pattern : digit.patterns) {
-            std::cerr << "  " << pattern;
-          }
-          std::cerr << std::endl;
+    }   // loop on tracks
+    preClusterizer.process(digitStore);
+    std::vector<o2::mid::PreClusters> preClusters(
+      preClusterizer.getPreClusters().begin(),
+      preClusterizer.getPreClusters().begin() + preClusterizer.getNPreClusters());
+    clusterizer.process(preClusters);
+    std::vector<o2::mid::Cluster2D> recoClusters(
+      clusterizer.getClusters().begin(),
+      clusterizer.getClusters().begin() + clusterizer.getNClusters());
+    isOk &= performanceMC.checkClusters(localHits, recoClusters);
+    if (!isOk) {
+      for (auto& digit : digitStore) {
+        std::cerr << "deId: " << (int)digit.deId
+                  << "  col: " << (int)digit.columnId;
+        for (auto& pattern : digit.patterns) {
+          std::cerr << "  " << std::bitset<16>(pattern);
         }
+        std::cerr << std::endl;
       }
-      tracker.process(recoClusters);
-      std::vector<o2::mid::Track> recoTracks(tracker.getTracks().begin(),
-                                             tracker.getTracks().begin() +
-                                                 tracker.getNTracks());
+    }
+    tracker.process(recoClusters);
+    std::vector<o2::mid::Track> recoTracks(tracker.getTracks().begin(),
+                                           tracker.getTracks().begin() +
+                                             tracker.getNTracks());
+    for (auto& track : tracks) {
       isOk &= performanceMC.checkTrack(track.generated, track.atFirstChamber,
                                        track.hits, recoTracks);
+    }
 
-      digitStore.clear();
-      localHits.clear();
-      if (!isOk) {
-        std::cerr << debugStr.str() << std::endl;
-      }
-    } // loop on tracks
-  }   // loop on events
+    digitStore.clear();
+    localHits.clear();
+    if (!isOk) {
+      std::cerr << debugStr.str() << std::endl;
+    }
+    // } // loop on tracks
+  } // loop on events
   performanceMC.saveResults("MIDPerformanceMC.root");
   return 0;
 }
