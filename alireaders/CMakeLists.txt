@@ -1,4 +1,5 @@
 set(SOURCES
+        DigitMaker.cxx
         TrackRefReader.cxx
 )
 
