@@ -1,0 +1,2 @@
+add_executable(mid_cluster_size_workflow MIDClusterSizeWorkflow.cxx ClusterSizeAnalysis.cxx ClusterSizeAnalysis.h)
+target_link_libraries(mid_cluster_size_workflow PUBLIC alireaders o2::MIDClustering o2::MIDSimulation)
