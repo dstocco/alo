@@ -11,6 +11,7 @@
 #ifndef ALO_MID_TRACK_H
 #define ALO_MID_TRACK_H
 
+#include <iostream>
 #include <array>
 
 #include <boost/serialization/access.hpp>
@@ -35,6 +36,16 @@ struct Track
         ar &mPosition;
     }
 };
+
+//______________________________________________________________________________
+std::ostream& operator<<(std::ostream& stream, const Track& track)
+{
+  /// Overload ostream operator
+  stream << "Momentum (" << track.mMomentum[0] << ", " << track.mMomentum[1] << ", " << track.mMomentum[2] << ")";
+  stream << "  position (" << track.mPosition[0] << ", " << track.mPosition[1] << ", " << track.mPosition[2] << ")";
+  return stream;
+}
+
 } // namespace mid
 } // namespace alo
 #endif /* ALO_MID_TRACK_H */

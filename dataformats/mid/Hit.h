@@ -11,6 +11,7 @@
 #ifndef O2_MID_HIT_H
 #define O2_MID_HIT_H
 
+#include <iostream>
 #include <array>
 
 #include <boost/serialization/access.hpp>
@@ -39,6 +40,17 @@ struct Hit
         ar &exitPoint;
     }
 };
+
+//______________________________________________________________________________
+std::ostream& operator<<(std::ostream& stream, const Hit& hit)
+{
+  /// Overload ostream operator
+  stream << "TrackId " << hit.trackId << "  DeId " << hit.deId;
+  stream << "  enter (" << hit.entryPoint[0] << ", " << hit.entryPoint[1] << ", " << hit.entryPoint[2] << ")";
+  stream << "  exit (" << hit.exitPoint[0] << ", " << hit.exitPoint[1] << ", " << hit.exitPoint[2] << ")";
+  return stream;
+}
+
 } // namespace mid
 } // namespace alo
 #endif /* O2_MID_HIT_H */

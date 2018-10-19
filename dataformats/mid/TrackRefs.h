@@ -45,6 +45,20 @@ struct TrackRefs
     ar &mHits;
   }
 };
+
+//______________________________________________________________________________
+std::ostream& operator<<(std::ostream& stream, const TrackRefs& trackRefs)
+{
+  /// Overload ostream operator
+  stream << "Generated: " << trackRefs.mGenerated;
+  stream << "\nAt first chamber: " << trackRefs.mFirstChamber;
+  stream << "\nHits:";
+  for ( auto& hit : trackRefs.mHits ) {
+    stream << "\n" << hit;
+  }
+  return stream;
+}
+
 } // namespace mid
 } // namespace alo
 #endif /* O2_MID_TRACKREFS_H */
