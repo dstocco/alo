@@ -3,3 +3,5 @@ if(FlatBuffers_FOUND)
 endif()
 
 add_subdirectory(legacy)
+add_subdirectory(dataformatconverter)
+add_subdirectory(trackrefsconverter)
