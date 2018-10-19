@@ -14,11 +14,14 @@ endforeach()
 
 project(alo VERSION 1.0.0 LANGUAGES CXX C)
 
-set(CMAKE_MODULE_PATH "${alo_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${alo_SOURCE_DIR}/cmake;${FAIRMQ}/cmake")
 
 find_package(ROOT)
 find_package(AliRoot)
 find_package(O2)
+find_package(FairMQ)
+find_package(FairLogger)
+find_package(Arrow REQUIRED)
 find_package(RapidJSON)
 find_package(FlatBuffers)
 
@@ -27,6 +30,10 @@ find_package(Boost
                         program_options
                         filesystem
                         serialization
+                        thread
+                        regex
+                        date_time
+                        signals
                         REQUIRED)
 
 include(CTest)
@@ -38,6 +45,8 @@ if(AliRoot_FOUND)
 endif()
 
 if(O2_FOUND)
+  message("GSLINCDIR: ${MS_GSL_INCLUDE_DIR}")
+  include_directories(${MS_GSL_INCLUDE_DIR})
   add_subdirectory(o2)
 endif()
 
