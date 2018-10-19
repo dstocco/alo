@@ -26,6 +26,7 @@ find_package(Boost
              COMPONENTS unit_test_framework
                         program_options
                         filesystem
+                        serialization
                         REQUIRED)
 
 include(CTest)
