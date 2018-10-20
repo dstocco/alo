@@ -1,2 +1,3 @@
+add_subdirectory(clusterSize)
 add_subdirectory(converters)
 add_subdirectory(recocheckers)
