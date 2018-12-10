@@ -13,7 +13,7 @@
 
 #include <iostream>
 #include <array>
-
+#include <bitset>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/array.hpp>
 
@@ -26,28 +26,24 @@ struct ColumnData {
   uint8_t columnId;                 ///< Column in DE
   std::array<uint16_t, 5> patterns; ///< patterns
 
-  friend class boost::serialization::access;
-
   /// Serializes the struct
   template <class Archive>
   void serialize(Archive& ar, const unsigned int version)
   {
-    ar& deId;
-    ar& columnId;
-    ar& patterns;
+    ar& deId& columnId& patterns;
   }
 };
 
-//______________________________________________________________________________
-std::ostream& operator<<(std::ostream& stream, const ColumnData& columnData)
+inline std::ostream& operator<<(std::ostream& os, const ColumnData& col)
 {
   /// Overload ostream operator
-  stream << "DeId " << int(columnData.deId) << "  ColumnId " << int(columnData.columnId) << "  BP:";
-  for (int ip = 0; ip < 4; ++ip) {
-    stream << " 0x" << std::bitset<16>(columnData.patterns[ip]);
+  os << "deId: " << static_cast<int>(col.deId) << "  col: " << static_cast<int>(col.columnId);
+  os << "  NBP: " << std::bitset<16>(col.patterns[4]);
+  os << "  BP: ";
+  for (int iline = 0; iline < 4; ++iline) {
+    os << " " << std::bitset<16>(col.patterns[iline]);
   }
-  stream << "  NBP: " << std::bitset<16>(columnData.patterns[4]);
-  return stream;
+  return os;
 }
 
 } // namespace mid
