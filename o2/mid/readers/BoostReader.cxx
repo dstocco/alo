@@ -16,13 +16,19 @@ namespace mid
 {
 
 //______________________________________________________________________________
-BoostReader::BoostReader(const char *inFilename)
-    : mInFile(inFilename, std::ios::binary), mInArchive(mInFile), mStreamEnd()
+BoostReader::BoostReader(const char* inFilename)
+  : mInFile(inFilename, std::ios::binary), mInArchive(mInFile), mStreamEnd()
 {
-    /// Default constructor
-    std::streampos archiveOffset = mInFile.tellg();
-    mStreamEnd = mInFile.seekg(0, std::ios_base::end).tellg();
-    mInFile.seekg(archiveOffset);
+  /// Default constructor
+  std::streampos archiveOffset = mInFile.tellg();
+  mStreamEnd = mInFile.seekg(0, std::ios_base::end).tellg();
+  mInFile.seekg(archiveOffset);
+}
+
+//______________________________________________________________________________
+bool BoostReader::eof()
+{
+  return (mInFile.tellg() >= mStreamEnd);
 }
 } // namespace mid
 } // namespace alo
