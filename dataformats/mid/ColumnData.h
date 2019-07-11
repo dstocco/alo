@@ -25,13 +25,6 @@ struct ColumnData {
   uint8_t deId;                     ///< Index of the detection element
   uint8_t columnId;                 ///< Column in DE
   std::array<uint16_t, 5> patterns; ///< patterns
-
-  /// Serializes the struct
-  template <class Archive>
-  void serialize(Archive& ar, const unsigned int version)
-  {
-    ar& deId& columnId& patterns;
-  }
 };
 
 inline std::ostream& operator<<(std::ostream& os, const ColumnData& col)
@@ -48,4 +41,17 @@ inline std::ostream& operator<<(std::ostream& os, const ColumnData& col)
 
 } // namespace mid
 } // namespace alo
+
+namespace boost
+{
+namespace serialization
+{
+template <class Archive>
+void serialize(Archive& ar, alo::mid::ColumnData& data, const unsigned int version)
+{
+  /// Non-intrusive boost serialization
+  ar& data.deId& data.columnId& data.patterns;
+}
+} // namespace serialization
+} // namespace boost
 #endif
