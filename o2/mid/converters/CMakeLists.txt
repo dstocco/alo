@@ -1,0 +1,4 @@
+add_library(MIDDataFormatConverter SHARED DataformatConverter.cxx)
+target_include_directories(MIDDataFormatConverter PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(MIDDataFormatConverter PUBLIC MIDDataFormat O2::DataFormatsMID O2::MIDSimulation)
+install(TARGETS MIDDataFormatConverter LIBRARY DESTINATION lib)
