@@ -8,8 +8,8 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-#ifndef ALO_MID_TRACK_H
-#define ALO_MID_TRACK_H
+#ifndef ALO_MID_TRACKMC_H
+#define ALO_MID_TRACKMC_H
 
 #include <iostream>
 #include <array>
@@ -21,31 +21,32 @@ namespace alo
 {
 namespace mid
 {
-struct Track
-{
-    std::array<double, 4> mMomentum; /// Track momentum
-    std::array<double, 4> mPosition; /// Track position
-
-    friend class boost::serialization::access;
-
-    /// Serializes the struct
-    template <class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
-        ar &mMomentum;
-        ar &mPosition;
-    }
+struct TrackMC {
+  std::array<double, 4> mMomentum; /// Track momentum
+  std::array<double, 3> mPosition; /// Track position
 };
 
 //______________________________________________________________________________
-std::ostream& operator<<(std::ostream& stream, const Track& track)
+inline std::ostream& operator<<(std::ostream& stream, const TrackMC& track)
 {
   /// Overload ostream operator
   stream << "Momentum (" << track.mMomentum[0] << ", " << track.mMomentum[1] << ", " << track.mMomentum[2] << ")";
   stream << "  position (" << track.mPosition[0] << ", " << track.mPosition[1] << ", " << track.mPosition[2] << ")";
   return stream;
 }
-
 } // namespace mid
 } // namespace alo
-#endif /* ALO_MID_TRACK_H */
+
+namespace boost
+{
+namespace serialization
+{
+template <class Archive>
+void serialize(Archive& ar, alo::mid::TrackMC& track, const unsigned int version)
+{
+  /// Non-intrusive boost serialization
+  ar& track.mMomentum& track.mPosition;
+}
+} // namespace serialization
+} // namespace boost
+#endif /* ALO_MID_TRACKMC_H */
