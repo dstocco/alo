@@ -1,5 +1,4 @@
-add_library(MIDUtility SHARED FileHandler.cxx)
-target_include_directories(MIDUtility INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(MIDUtility SHARED FileHandler.cxx FileHandler.h BoostReader.cxx BoostReader.h)
+target_include_directories(MIDUtility PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(MIDUtility PUBLIC Boost::serialization)
-set_target_properties(MIDUtility PROPERTIES PUBLIC_HEADER "FileHandler.h")
-install(TARGETS MIDUtility LIBRARY DESTINATION lib PUBLIC_HEADER DESTINATION include/mid)
+install(TARGETS MIDUtility LIBRARY DESTINATION lib)
