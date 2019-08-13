@@ -1,3 +1,4 @@
 add_subdirectory(clusterSize)
 add_subdirectory(converters)
+add_subdirectory(fireProbability)
 add_subdirectory(recocheckers)
