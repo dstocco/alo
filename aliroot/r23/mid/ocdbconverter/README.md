@@ -4,10 +4,10 @@ This package allows to perform a conversion of the OCDB from the run2 format to 
 ## Usage
 To run the package:
 ```
-mid-convert-ocdb <runNumber>
+mid-ali-to-alo-ocdb <runNumber>
 ```
 
 For the full list of options, please run:
 ```
-mid-convert-ocdb -h
+mid-ali-to-alo-ocdb -h
 ```
