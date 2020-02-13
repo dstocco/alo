@@ -30,7 +30,7 @@
 #include "AliTrackReference.h"
 
 #include "TrackRefs.h"
-#include "ConvertDE.h"
+#include "DataformatConverter.h"
 
 #include <boost/archive/binary_oarchive.hpp>
 
@@ -110,6 +110,7 @@ void trackRefsToMID(const char *pathToSim, std::ofstream &outFile)
 
       if (!outTR.mHits.empty())
       {
+        outTR.mParticlePDG = particle->GetPdgCode();
         outTR.mGenerated.mMomentum = {particle->Px(), particle->Py(),
                                       particle->Pz()};
         outTR.mGenerated.mPosition = {particle->Vx(), particle->Vy(),

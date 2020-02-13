@@ -1,4 +1,4 @@
-add_library(MIDConverterUtility SHARED ConvertDE.cxx)
-target_include_directories(MIDConverterUtility INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-set_target_properties(MIDConverterUtility PROPERTIES PUBLIC_HEADER "ConvertDE.h")
-install(TARGETS MIDConverterUtility LIBRARY DESTINATION lib PUBLIC_HEADER DESTINATION include/mid)
+add_library(MIDConverterUtility SHARED DataFormatConverter.cxx DataFormatConverter.h)
+target_include_directories(MIDConverterUtility PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(MIDConverterUtility PUBLIC AliRoot::MUONbase MIDDataFormat)
+install(TARGETS MIDConverterUtility LIBRARY DESTINATION lib)
