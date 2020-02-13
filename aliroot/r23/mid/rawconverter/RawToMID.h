@@ -13,6 +13,7 @@
 
 #include "FileHandler.h"
 
-void rawToMID(const char* inputName, alo::mid::FileHandler& fileHandler);
+void rawToMID(const char* inputName, alo::mid::FileHandler& fileHandler, bool splitPerDE);
+bool setupCDB(int run, const char* ocdb, const char* mappingOCDB = nullptr);
 
 #endif
