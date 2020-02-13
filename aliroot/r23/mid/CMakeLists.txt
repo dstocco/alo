@@ -1,4 +1,5 @@
 add_subdirectory(dataformatconverter)
+add_subdirectory(esdconverter)
 add_subdirectory(ocdbconverter)
 add_subdirectory(rawconverter)
 add_subdirectory(trackrefsconverter)
