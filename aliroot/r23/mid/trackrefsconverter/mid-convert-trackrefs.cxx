@@ -34,6 +34,7 @@ int main(int argc, char **argv)
 
     if (vm.count("help"))
     {
+        std::cout << "Usage: " << argv[0] << " [options] <path_to_simulation> [<path_to_simulation 2> ...]\n";
         std::cout << generic << std::endl;
         return 2;
     }
