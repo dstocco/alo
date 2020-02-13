@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include "Track.h"
+#include "TrackMC.h"
 #include "Hit.h"
 
 #include <boost/serialization/access.hpp>
@@ -23,37 +23,49 @@ namespace alo
 {
 namespace mid
 {
-struct TrackRefs
-{
-  Track mGenerated;       /// Generated track
-  Track mFirstChamber;  /// Momentum at first MID chamber
+struct TrackRefs {
+  int mParticlePDG;       /// Particle ID
+  TrackMC mGenerated;     /// Generated track
+  TrackMC mFirstChamber;  /// Momentum at first MID chamber
   std::vector<Hit> mHits; /// Associated hits
-
-  friend class boost::serialization::access;
 
   /// Serializes the struct
   template <class Archive>
-  void serialize(Archive &ar, const unsigned int version)
+  void serialize(Archive& ar, const unsigned int version)
   {
-    ar &mGenerated;
-    ar &mFirstChamber;
-    ar &mHits;
+    ar& mParticlePDG;
+    ar& mGenerated;
+    ar& mFirstChamber;
+    ar& mHits;
   }
 };
 
-//______________________________________________________________________________
 std::ostream& operator<<(std::ostream& stream, const TrackRefs& trackRefs)
 {
   /// Overload ostream operator
-  stream << "Generated: " << trackRefs.mGenerated;
+  stream << "Particle PDG: " << trackRefs.mParticlePDG;
+  stream << "\nGenerated: " << trackRefs.mGenerated;
   stream << "\nAt first chamber: " << trackRefs.mFirstChamber;
   stream << "\nHits:";
-  for ( auto& hit : trackRefs.mHits ) {
-    stream << "\n" << hit;
+  for (auto& hit : trackRefs.mHits) {
+    stream << "\n"
+           << hit;
   }
   return stream;
 }
-
 } // namespace mid
 } // namespace alo
+
+namespace boost
+{
+namespace serialization
+{
+template <class Archive>
+void serialize(Archive& ar, alo::mid::TrackRefs& tr, const unsigned int version)
+{
+  /// Non-intrusive boost serialization
+  ar& tr.mParticlePDG& tr.mGenerated& tr.mFirstChamber& tr.mHits;
+}
+} // namespace serialization
+} // namespace boost
 #endif
