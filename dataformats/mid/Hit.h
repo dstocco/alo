@@ -41,7 +41,7 @@ struct Hit {
 };
 
 //______________________________________________________________________________
-std::ostream& operator<<(std::ostream& stream, const Hit& hit)
+inline std::ostream& operator<<(std::ostream& stream, const Hit& hit)
 {
   /// Overload ostream operator
   stream << "TrackId " << hit.trackId << "  DeId " << hit.deId;
