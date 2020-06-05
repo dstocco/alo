@@ -11,14 +11,14 @@ int main(int argc, char** argv)
 {
   po::variables_map vm;
   po::options_description generic("Generic options");
-  std::string outFilename = "ocdb.dat";
+  std::string outputDir = ".";
   std::string ocdb = "raw://";
   int runNumber = 0;
 
   // clang-format off
   generic.add_options()
           ("help", "produce help message")
-          ("output", po::value<std::string>(&outFilename),"basename of output ocdb file")
+          ("output-dir", po::value<std::string>(&outputDir),"output directory")
           ("ocdb", po::value<std::string>(&ocdb),"input ocdb");
 
 
@@ -33,9 +33,7 @@ int main(int argc, char** argv)
   po::positional_options_description pos;
   pos.add("runNumber", -1);
 
-  po::store(
-    po::command_line_parser(argc, argv).options(cmdline).positional(pos).run(),
-    vm);
+  po::store(po::command_line_parser(argc, argv).options(cmdline).positional(pos).run(), vm);
   po::notify(vm);
 
   if (vm.count("help")) {
@@ -55,7 +53,7 @@ int main(int argc, char** argv)
   AliMpCDB::LoadDDLStore();
 
   std::stringstream ss;
-  ss << "ocdb_hv_" << runNumber;
+  ss << outputDir << "/" << "ocdb_hv_" << runNumber << ".dat";
 
   hvToMID(ss.str().data());
 
