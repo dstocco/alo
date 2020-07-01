@@ -50,40 +50,38 @@ void FireProbability::initHistos()
   }
 }
 
-bool FireProbability::process(const std::vector<PreCluster>& preClusters, const std::array< std::vector<Cluster2D>,72>& hits)
+bool FireProbability::process(const std::vector<PreCluster>& preClusters, const std::unordered_map<uint8_t, std::vector<Cluster2D>>& hits)
 {
   /// Checks the cluster resolution
   double coor = 0., min = 0., max = 0., bin = 0.;
   for (auto& pc : preClusters) {
-    size_t deId = static_cast<size_t>(pc.deId);
-    if ( hits[deId].size() > 1 ) {
+    auto item = hits.find(pc.deId);
+    if (item == hits.end() || item->second.size() > 1) {
       continue;
     }
     MpArea area = mPreClusterHelper.getArea(pc);
-    if ( pc.cathode == 0 ) {
+    if (pc.cathode == 0) {
       bin = static_cast<double>(pc.firstColumn);
-      coor = hits[deId].back().yCoor;
+      coor = item->second.back().yCoor;
       min = area.getYmin();
       max = area.getYmax();
-    }
-    else {
+    } else {
       bin = -1.;
-      coor = hits[deId].back().xCoor;
+      coor = item->second.back().xCoor;
       min = area.getXmin();
       max = area.getXmax();
     }
     double d1 = max - coor;
     double d2 = coor - min;
-    if ( d1 < 0. || d2 < 0. ) {
+    if (d1 < 0. || d2 < 0.) {
       continue;
     }
     double delta = (d1 > d2) ? d1 : d2;
-    mFireProbability[deId].Fill(bin, delta);
+    mFireProbability[pc.deId].Fill(bin, delta);
   }
 
   return true;
 }
-
 
 bool FireProbability::saveResults(const char* filename) const
 {

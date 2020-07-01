@@ -16,8 +16,8 @@
 #ifndef O2_MID_FIREPROBABILITY_H
 #define O2_MID_FIREPROBABILITY_H
 
-#include <array>
 #include <vector>
+#include <unordered_map>
 
 #include "DataFormatsMID/Cluster2D.h"
 #include "MIDClustering/PreCluster.h"
@@ -37,13 +37,13 @@ class FireProbability
   FireProbability();
   virtual ~FireProbability() = default;
 
-  bool process(const std::vector<PreCluster>& preClusters, const std::array< std::vector<Cluster2D>,72>& hits);
+  bool process(const std::vector<PreCluster>& preClusters, const std::unordered_map<uint8_t, std::vector<Cluster2D>>& hits);
   bool saveResults(const char* filename) const;
 
  private:
   void initHistos();
 
-  std::vector<TH2F> mFireProbability;     // Fire probability
+  std::vector<TH2F> mFireProbability; // Fire probability
   PreClusterHelper mPreClusterHelper; // PreClusters helper
 };
 
