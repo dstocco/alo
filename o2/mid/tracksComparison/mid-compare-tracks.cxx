@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
   po::store(po::command_line_parser(argc, argv).options(cmdline).run(), vm);
   po::notify(vm);
 
-  if (vm.count("help")) {
+  if (vm.count("help") || vm.count("alo-esd-event-filename") == 0 || vm.count("o2-tracks-filename") == 0) {
     std::cout << "Usage: " << argv[0] << " [options]\n";
     std::cout << generic << std::endl;
     return 2;
