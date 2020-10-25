@@ -23,7 +23,7 @@ std::vector<o2::mid::Hit> convertHits(const std::vector<Hit> aloHits)
 {
   std::vector<o2::mid::Hit> hits;
   for (auto& aloHit : aloHits) {
-    hits.emplace_back(aloHit.trackId, aloHit.deId, Point3D<float>(aloHit.entryPoint[0], aloHit.entryPoint[1], aloHit.entryPoint[2]), Point3D<float>(aloHit.exitPoint[0], aloHit.exitPoint[1], aloHit.exitPoint[2]));
+    hits.emplace_back(aloHit.trackId, aloHit.deId, o2::math_utils::Point3D<float>(aloHit.entryPoint[0], aloHit.entryPoint[1], aloHit.entryPoint[2]), o2::math_utils::Point3D<float>(aloHit.exitPoint[0], aloHit.exitPoint[1], aloHit.exitPoint[2]));
   }
   return hits;
 }
