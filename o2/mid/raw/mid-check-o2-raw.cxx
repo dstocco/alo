@@ -210,12 +210,15 @@ int main(int argc, char* argv[])
     }
   }
 
-  o2::mid::Decoder<o2::mid::GBTUserLogicDecoder> decoder;
+  std::unique_ptr<o2::mid::Decoder> decoder{ nullptr };
+  auto const* rdhPtr = reinterpret_cast<const o2::header::RDHAny*>(buffer.data());
+  decoder = o2::mid::createDecoder(*rdhPtr, true);
+
   gsl::span<const uint8_t> data(reinterpret_cast<uint8_t*>(buffer.data()), buffer.size());
-  decoder.process(data);
+  decoder->process(data);
 
   o2::mid::DecodedDataAggregator aggregator;
-  aggregator.process(decoder.getData(), decoder.getROFRecords());
+  aggregator.process(decoder->getData(), decoder->getROFRecords());
 
   unsigned long nErrors = 0;
 
